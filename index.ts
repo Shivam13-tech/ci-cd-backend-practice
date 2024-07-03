@@ -15,6 +15,7 @@ app.get("/", (req: Request, res: Response) => {
 function add(a: number, b: number): number {
   return a + b;
 }
+console.log("test");
 
 // Start the server only if not required by a test file
 if (require.main === module) {
