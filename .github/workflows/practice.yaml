@@ -1,0 +1,50 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI #Name: Sets the name of the workflow. In this case, it's "Node.js CI".
+
+on: #Triggers: Specifies when the workflow should run. This workflow runs on push events to the master branch and when someone makes a pull_request events targeting the master branch.
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs: #Jobs: Defines a job named build . There can be many jobs A job is a defined set of steps that GitHub Actions will execute sequentially on the configured runner environment (e.g., Ubuntu, Windows, macOS).
+  build:
+    runs-on: ubuntu-latest #Runs On: Specifies the operating system for the job. Here, it uses the latest version of Ubuntu provided by GitHub Actions.
+
+    strategy: #Check comment below for this part
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v4 #comment for this added below
+      - name: Use Node.js ${{ matrix.node-version }} #Setup Node.js: Configures the Node.js environment for the job using actions/setup-node. It installs the specified Node.js version (14.x, 16.x, or 18.x) and caches npm dependencies for faster subsequent runs.
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: npm ci #Installs dependencies based on the package-lock.json
+      - run: npm run build --if-present #Executes the build script (npm run build) if it is defined in your package.json
+      - run: npm test #Runs the test script (npm test) defined in your package.json
+#The strategy section in a GitHub Actions workflow file allows you to define a matrix build strategy. This is particularly useful when you want to run the same job (or set of jobs) across multiple configurations, such as different versions of software or different operating systems. Let's break down what the strategy part does and how it works:
+
+#Purpose of strategy in GitHub Actions
+#Matrix Builds: Enables you to specify a matrix of different configurations (e.g., different Node.js versions, operating systems) for a job. This allows you to test your code against various environments in parallel, optimizing your CI/CD pipeline.
+
+#Efficiency: Reduces redundancy by defining configurations once and applying them across multiple jobs, which helps save time and resources.
+
+#Parameterization: Provides flexibility to run tests or perform tasks across a range of specified versions or parameters, ensuring compatibility and reliability across different environments.
+#-------------------------------for uses checkout part-------------------------------
+# The uses key with actions/checkout@v4 in a GitHub Actions workflow file is a step that instructs GitHub Actions to perform a checkout of your repository's code at a specific commit or branch. Here’s a detailed explanation of what this step does:
+
+# Purpose of actions/checkout
+# Repository Access: The actions/checkout action is a pre-built action provided by GitHub. Its main purpose is to fetch your repository's code and make it available for subsequent steps in the workflow.
+
+# Commit or Branch: By default, actions/checkout checks out the latest commit on the default branch (main or master). You can configure it to check out a specific commit, tag, or branch using parameters.
+
+# Workflow Initialization: This step is typically placed early in the workflow to ensure that subsequent steps have access to the correct version of the codebase against which tests or other tasks should be run.
+
+# Explanation of @v4
+# The @v4 specifies the version of the actions/checkout action to use. GitHub Actions regularly updates these actions to include new features, bug fixes, or improvements. Using @v4 ensures you're using a stable version of the action that's compatible with your workflow.
